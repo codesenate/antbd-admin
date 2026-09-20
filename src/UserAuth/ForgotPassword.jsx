@@ -52,7 +52,7 @@ export default function ForgotPassword() {
               </Typography>
             </Stack>
             <Stack justifyContent="center" alignItems="center">
-              <img src="image2.png" width="80%" />
+              <img src="image.png" width="80%" />
             </Stack>
           </Box>
         </Grid>

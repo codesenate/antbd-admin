@@ -12,6 +12,8 @@ import PropTypes from "prop-types";
 
 export default function Body({
   packages,
+  page,
+  rowsPerPage,
   handleCloseMenu,
   handleOpenMenu,
   open,
@@ -59,11 +61,14 @@ export default function Body({
       },
     },
   ].filter(Boolean);
-
+  const displayedPackages = packages.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
   return (
     <>
       <TableBody>
-        {packages.map((data) => (
+        {displayedPackages.map((data) => (
           <TableRow key={data._id}>
             <TableCell
               align="left"
@@ -189,32 +194,35 @@ Body.propTypes = {
   packages: PropTypes.arrayOf(
     PropTypes.shape({
       _id: PropTypes.string.isRequired,
-      zone: PropTypes.string.isRequired,
-      areaName: PropTypes.string.isRequired,
-      address: PropTypes.string.isRequired,
-      coverPhoto: PropTypes.shape({
-        url: PropTypes.string,
-      }),
+      packageName: PropTypes.string,
+      price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      maxDownloadSpeed: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+      ]),
+      maxUploadSpeed: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      setupCharge: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       createdAt: PropTypes.string,
     }),
   ).isRequired,
-  zones: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+
   selectedRowId: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+
   redirectEdit: PropTypes.func.isRequired,
   handleCloseMenu: PropTypes.func.isRequired,
   handleOpenMenu: PropTypes.func.isRequired,
   setIsModalOpen: PropTypes.func.isRequired,
   setDataToDelete: PropTypes.func.isRequired,
+
   open: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]).isRequired,
-  handleOpenMapModal: PropTypes.func.isRequired,
+
   permissions: PropTypes.shape({
     canUpdate: PropTypes.bool,
     canDelete: PropTypes.bool,
   }),
+
   hasActions: PropTypes.bool,
 };

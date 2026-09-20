@@ -40,7 +40,7 @@ export default function usePageData() {
         availableActions,
         order,
         group,
-        iconName, // 🔹 include iconName
+        iconName,
       });
 
       if (response.data.success) {

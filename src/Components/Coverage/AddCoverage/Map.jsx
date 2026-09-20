@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
+import PropTypes from "prop-types";
 const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
   const mapRef = useRef(null);
   const [activeTool, setActiveTool] = useState("");
@@ -54,9 +54,13 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
 
   // Init Map
   useEffect(() => {
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      console.error("Google Maps API key is missing");
+      return;
+    }
     const script = document.createElement("script");
-    script.src =
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyDo6tI6z6qCTkXDp-pSl8F22SvsvNR1rOA&libraries=drawing,geometry,places";
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=3.64&libraries=drawing,geometry,places`;
     script.async = true;
     script.onload = () => {
       const mapOptions = {
@@ -73,7 +77,7 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
       autocompleteServiceRef.current =
         new window.google.maps.places.AutocompleteService();
       placesServiceRef.current = new window.google.maps.places.PlacesService(
-        map
+        map,
       );
       geocoderRef.current = new window.google.maps.Geocoder();
     };
@@ -139,7 +143,7 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
           } else {
             setSuggestions([]);
           }
-        }
+        },
       );
     } else {
       setSuggestions([]);
@@ -169,7 +173,7 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
             }
           }
         }
-      }
+      },
     );
   };
 
@@ -184,7 +188,7 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
       (position) => {
         const latLng = new window.google.maps.LatLng(
           position.coords.latitude,
-          position.coords.longitude
+          position.coords.longitude,
         );
         googleMap.panTo(latLng);
         googleMap.setZoom(15);
@@ -208,7 +212,7 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
       },
       (error) => {
         alert("Unable to retrieve your location: " + error.message);
-      }
+      },
     );
   };
 
@@ -243,7 +247,7 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
         polygon.setEditable(false);
         drawingManager.setDrawingMode(null);
         setActiveTool("");
-      }
+      },
     );
   };
 
@@ -473,28 +477,6 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
         style={{ width: "100%", height: "600px", border: "1px solid #ccc" }}
       />
 
-      {/* Display coordinates */}
-      <div style={{ marginTop: 20, paddingBottom: 20 }}>
-        <h3>Saved Polygon Coordinates</h3>
-        {(!Array.isArray(polygons) || polygons.length === 0) && (
-          <p>No polygons drawn yet.</p>
-        )}
-        {Array.isArray(polygons) &&
-          polygons.map((poly, index) => (
-            <div key={index} style={{ marginBottom: 15 }}>
-              <strong>Polygon {index + 1}:</strong>
-              <ul style={{ paddingLeft: 20, marginTop: 5 }}>
-                {Array.isArray(poly.coordinates) &&
-                  poly.coordinates.map(([lat, lng], idx) => (
-                    <li key={idx}>
-                      Lat: {lat.toFixed(5)}, Lng: {lng.toFixed(5)}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          ))}
-      </div>
-
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
@@ -506,3 +488,13 @@ const Map = ({ searchQuery, setSearchQuery, polygons, setPolygons }) => {
 };
 
 export default Map;
+Map.propTypes = {
+  searchQuery: PropTypes.string.isRequired,
+  setSearchQuery: PropTypes.func.isRequired,
+  polygons: PropTypes.arrayOf(
+    PropTypes.shape({
+      coordinates: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+    }),
+  ).isRequired,
+  setPolygons: PropTypes.func.isRequired,
+};
